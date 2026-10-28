@@ -1,0 +1,42 @@
+{
+  "model_version": "lstm_sber_f4_202610282014",
+  "ticker": "SBER",
+  "use_sentiment": true,
+  "features": [
+    "close",
+    "volume",
+    "ret",
+    "sentiment"
+  ],
+  "window": 30,
+  "hidden_size": 64,
+  "num_layers": 2,
+  "dropout": 0.2,
+  "lr": 0.001,
+  "batch_size": 32,
+  "max_epochs": 100,
+  "patience": 10,
+  "grad_clip": 1.0,
+  "seed": 42,
+  "split": [
+    0.7,
+    0.15,
+    0.15
+  ],
+  "sentiment_fill": 0.0,
+  "news_days_with_sentiment": 0,
+  "train_period": [
+    "2023-12-12",
+    "2026-01-23"
+  ],
+  "val_period": [
+    "2026-01-24",
+    "2026-06-09"
+  ],
+  "test_period": [
+    "2026-06-10",
+    "2026-10-28"
+  ],
+  "torch_version": "2.15.0+cpu",
+  "trained_at": "2026-10-28T20:14:10.952489+03:00"
+}

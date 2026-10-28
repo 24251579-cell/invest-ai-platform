@@ -1,5 +1,5 @@
 {
-  "model_version": "lstm_sber_f3_202610281955",
+  "model_version": "lstm_sber_f3_202610282013",
   "ticker": "SBER",
   "use_sentiment": false,
   "features": [
@@ -37,5 +37,5 @@
     "2026-10-28"
   ],
   "torch_version": "2.15.0+cpu",
-  "trained_at": "2026-10-28T19:55:17.202691+03:00"
+  "trained_at": "2026-10-28T20:13:59.784037+03:00"
 }

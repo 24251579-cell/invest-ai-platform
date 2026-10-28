@@ -1,0 +1,15 @@
+{
+  "ticker": "SBER",
+  "improved_by_sentiment": false,
+  "rmse_f3": 6.188400823462343,
+  "rmse_f4": 5.196672214307761,
+  "da_f3": 51.14503816793893,
+  "da_f4": 49.61832061068702,
+  "rmse_rel_f3": 1.4236809732619824,
+  "rmse_rel_f4": 1.1955274984353466,
+  "news_days_with_sentiment": 0,
+  "test_period": [
+    "2026-06-10",
+    "2026-10-28"
+  ]
+}
