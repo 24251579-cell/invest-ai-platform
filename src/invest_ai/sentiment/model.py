@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
+from pathlib import Path
 
 import torch
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
@@ -35,9 +36,11 @@ class SentimentModel:
         self.max_length = max_length or cfg["max_length"]
         self.batch_size = batch_size or cfg["batch_size"]
         torch.set_num_threads(config.torch_threads())
-        log.info("Loading %s", checkpoint)
-        self.tokenizer = AutoTokenizer.from_pretrained(checkpoint)
-        self.model = AutoModelForSequenceClassification.from_pretrained(checkpoint)
+        local = Path(cfg["local_models_dir"]) / checkpoint.split("/")[-1]
+        source = str(local) if (local / "model.safetensors").exists() else checkpoint
+        log.info("Loading %s from %s", checkpoint, source)
+        self.tokenizer = AutoTokenizer.from_pretrained(source)
+        self.model = AutoModelForSequenceClassification.from_pretrained(source)
         self.model.eval()
         # Class order differs between checkpoints, so it is taken from id2label.
         id2label = {int(i): name.lower() for i, name in self.model.config.id2label.items()}
