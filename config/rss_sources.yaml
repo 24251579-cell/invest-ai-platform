@@ -1,0 +1,16 @@
+sources:
+  - id: interfax
+    url: https://www.interfax.ru/rss.asp
+    lang: ru
+  - id: rbc
+    url: https://rssexport.rbc.ru/rbcnews/news/30/full.rss
+    lang: ru
+  - id: kommersant_economics
+    url: https://www.kommersant.ru/RSS/section-economics.xml
+    lang: ru
+  - id: moscow_times
+    url: https://www.themoscowtimes.com/rss/news
+    lang: en
+  - id: tass_en
+    url: https://tass.com/rss/v2.xml
+    lang: en

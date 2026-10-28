@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# Environments
+.venv/
+.env
+
+# Data and model artifacts
+data/
+models/**/*.pt
+reports/*.png
+
+# IDE / OS
+.vscode/
+.idea/
+Thumbs.db
+desktop.ini

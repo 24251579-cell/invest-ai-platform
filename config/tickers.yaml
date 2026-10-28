@@ -1,0 +1,33 @@
+# Instruments of the MVP (TQBR board). Aliases are matched case-insensitively
+# as whole words in "title + summary"; a ticker is assigned only if exactly one
+# issuer matches (otherwise ticker = NULL, market-wide news).
+board: TQBR
+tickers:
+  SBER:
+    name: Сбербанк
+    aliases: [сбербанк, сбербанка, сбербанку, сбербанком, сбербанке,
+              сбер, сбера, сберу, сбером, сбере, sberbank, sber]
+  GAZP:
+    name: Газпром
+    aliases: [газпром, газпрома, газпрому, газпромом, газпроме, gazprom]
+  LKOH:
+    name: Лукойл
+    aliases: [лукойл, лукойла, лукойлу, лукойлом, лукойле, lukoil]
+  ROSN:
+    name: Роснефть
+    aliases: [роснефть, роснефти, роснефтью, rosneft]
+  GMKN:
+    name: Норникель
+    aliases: [норникель, норникеля, норникелю, норникелем, норникеле,
+              норильский никель, норильского никеля, норильскому никелю,
+              норильским никелем, norilsk nickel, nornickel]
+  NVTK:
+    name: Новатэк
+    aliases: [новатэк, новатэка, новатэку, новатэком, новатэке, novatek]
+  TATN:
+    name: Татнефть
+    aliases: [татнефть, татнефти, татнефтью, tatneft]
+  PLZL:
+    name: Полюс
+    # "полюс" is a homonym (e.g. "Северный полюс"); accepted MVP limitation
+    aliases: [полюс, полюса, полюсу, полюсом, polyus]

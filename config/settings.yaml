@@ -1,0 +1,39 @@
+timezone: Europe/Moscow
+
+# Trading-day cutoff (formula 2.2). Each entry applies from `since` (inclusive).
+# 19:00 since 2026-09-14 per СРО2; the earlier value is the end of the main
+# session under the previous regulation — verify against the MOEX schedule.
+cutoff_schedule:
+  - since: "2000-01-01"
+    time: "18:50"
+  - since: "2026-09-14"
+    time: "19:00"
+
+moex:
+  base_url: https://iss.moex.com/iss
+  interval: 24
+  history_years: 3
+  anomaly_close_change: 0.20
+
+sentiment:
+  checkpoints:
+    ru: blanchefort/rubert-base-cased-sentiment
+    en: ProsusAI/finbert
+  max_length: 128
+  batch_size: 16
+  lang_threshold: 0.5
+
+lstm:
+  window: 30
+  hidden_size: 64
+  num_layers: 2
+  dropout: 0.2
+  lr: 0.001
+  batch_size: 32
+  max_epochs: 100
+  patience: 10
+  grad_clip: 1.0
+  split: [0.70, 0.15, 0.15]
+  seed: 42
+  # Days without news: S = 0 (neutral background), news count kept separately
+  sentiment_fill: 0.0
