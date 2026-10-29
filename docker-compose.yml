@@ -40,6 +40,7 @@ services:
       HF_HUB_DISABLE_XET: "1"
       TORCH_NUM_THREADS: "4"
       SYNC_DB_ON_START: "1"
+      AUTO_SYNC_DB: "1"
     volumes:
       - ./data:/app/data
       - ./models:/app/models

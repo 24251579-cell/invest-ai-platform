@@ -4,7 +4,8 @@ MVP инвестиционной аналитической AI-платформ�
 тональность FinBERT / RuBERT, прогноз цены закрытия на t+1 моделью LSTM с индексом
 тональности (F=4) и без него (F=3), сравнение с наивным прогнозом.
 
-Документы: `docs/mvp-plan.md`, `docs/ai-part-plan.md`, `docs/sro2-srk.docx` (+ `.txt`).
+Документы: [`docs/operator-guide.md`](docs/operator-guide.md) (инструкция оператора),
+`docs/mvp-plan.md`, `docs/ai-part-plan.md`, `docs/sro2-srk.docx` (+ `.txt`).
 
 ## Что уже есть
 
@@ -15,8 +16,8 @@ MVP инвестиционной аналитической AI-платформ�
 | LSTM F=3 / F=4, Model Registry, hypothesis JSON | готово |
 | Web UI (FastAPI) | готово (`web/`, `scripts/run_web.py`) |
 | Docker Compose: app + PostgreSQL 16 + Adminer | готово |
-| Схема БД СРО2 + sync CSV → Postgres | готово (`db/init/`, `scripts/sync_db.py`) |
-| Прямая запись ETL/AI в Postgres (без CSV) | ещё нет — пайплайн пишет CSV, в БД через sync |
+| Схема БД СРО2 + auto-sync CSV → Postgres | готово (`db.py` `auto_sync`, `scripts/sync_db.py`) |
+| Прямая запись в Postgres без CSV-слоя | не делаем в лабе (CSV = кэш) |
 | Streamlit Э1–Э4 / APScheduler | ещё нет (в UI сейчас FastAPI-панель) |
 
 ## Быстрый старт (Docker — рекомендуемый)
@@ -73,11 +74,14 @@ python scripts/load_news.py                        # data/raw/news.csv
 python scripts/score_sentiment.py --limit 50       # sentiment_scores + daily_sentiment
 python scripts/train_lstm.py --ticker SBER         # models/lstm_sber_f{3,4}/
 python scripts/predict.py --ticker SBER            # data/processed/forecasts.csv
-python scripts/sync_db.py                          # CSV → PostgreSQL
+python scripts/sync_db.py                          # ручной полный sync (обычно не нужен)
 pytest -q
 ```
 
-Те же шаги доступны кнопками в Web UI (включая «Sync → Postgres» и полный пайплайн).
+После `load_candles` / `load_news` / `score_sentiment` / `predict` вызывается **auto-sync**
+в PostgreSQL (`AUTO_SYNC_DB=1` по умолчанию; отключить: `AUTO_SYNC_DB=0` или `--no-sync`).
+
+Те же шаги — кнопками в Web UI.
 
 ## Веб-интерфейс без Docker
 
@@ -98,8 +102,8 @@ python scripts/run_web.py          # http://127.0.0.1:8000
 DATABASE_URL=postgresql+psycopg://invest:invest@localhost:5432/invest
 ```
 
-В контейнере URL переопределяется на `@db:5432`. Пока модули ИИ читают/пишут **CSV**
-в `data/` (те же поля, что у таблиц); в Postgres данные попадают через `scripts/sync_db.py`.
+В контейнере URL переопределяется на `@db:5432`. Модули пишут **CSV** в `data/` (кэш/отладка)
+и сразу делают **auto-sync** в Postgres. Ручной sync: `scripts/sync_db.py` или кнопка в UI.
 
 ## Структура репозитория
 

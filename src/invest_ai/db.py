@@ -193,3 +193,29 @@ def sync_from_csv(url: str | None = None) -> dict:
 
     log.info("DB sync done: %s", stats)
     return stats
+
+
+def auto_sync(label: str = "") -> dict | None:
+    """Best-effort CSV → Postgres after a pipeline step.
+
+    Enabled by default (AUTO_SYNC_DB=1). Skips quietly if Postgres is down
+    or AUTO_SYNC_DB is 0/false/no — so the lab still works without Docker DB.
+    """
+    flag = os.environ.get("AUTO_SYNC_DB", "1").strip().lower()
+    if flag in {"0", "false", "no", "off"}:
+        return None
+    status = ping()
+    if not status["ok"]:
+        msg = f"auto-sync skipped{f' ({label})' if label else ''}: {status.get('error')}"
+        log.warning(msg)
+        print(msg)
+        return None
+    try:
+        stats = sync_from_csv()
+    except Exception as exc:  # noqa: BLE001
+        msg = f"auto-sync failed{f' ({label})' if label else ''}: {exc}"
+        log.warning(msg)
+        print(msg)
+        return None
+    print(f"auto-sync OK{f' ({label})' if label else ''}: {stats}")
+    return stats

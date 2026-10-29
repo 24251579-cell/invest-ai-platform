@@ -125,6 +125,7 @@ def run_pipeline(ticker: str = "SBER", limit: int = 50) -> JSONResponse:
             "finished_at": None,
         })
 
+    # Each data step auto-syncs CSV → Postgres (AUTO_SYNC_DB=1).
     steps = [
         ("candles", "load_candles.py", ["--tickers", ticker]),
         ("news", "load_news.py", []),
