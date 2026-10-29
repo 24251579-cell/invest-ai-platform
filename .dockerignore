@@ -1,0 +1,13 @@
+.venv/
+.git/
+.idea/
+.pytest_cache/
+**/__pycache__/
+*.pyc
+data/
+models/**/*.pt
+reports/*.png
+docs/
+*.docx
+agent-transcripts/
+.env

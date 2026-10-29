@@ -1,33 +1,36 @@
 ---
 name: MVP СРО2СРК
-overview: "План реализации MVP инвестиционной аналитической AI-платформы в границах прототипа СРО2: ETL (MOEX + RSS), PostgreSQL, FinBERT/RuBERT, LSTM с/без тональности, Streamlit Э1–Э4. Вне MVP: портфель/VaR, полный walk-forward, регуляторные дисклеймеры."
+overview: "План реализации MVP инвестиционной аналитической AI-платформы в границах прототипа СРО2: ETL (MOEX + RSS), PostgreSQL, FinBERT/RuBERT, LSTM с/без тональности, дашборд. Вне MVP: портфель/VaR, полный walk-forward, регуляторные дисклеймеры."
 todos:
   - id: phase-0-scaffold
     content: "Каркас: Git, deps, docker-compose Postgres, конфиги, схема БД + миграции"
-    status: pending
+    status: completed
   - id: phase-1-etl
     content: "ETL: MOEX candles + RSS news, валидация, CLI загрузки"
-    status: pending
+    status: completed
   - id: phase-2-sentiment
     content: "Sentiment: FinBERT/RuBERT, агрегация, CLI score, формат metrics"
-    status: pending
+    status: completed
   - id: phase-3-lstm
     content: LSTM F=3/F=4 + naive baseline, Model Registry, запись forecasts
-    status: pending
+    status: completed
   - id: phase-4-ui
-    content: Streamlit multipage Э1–Э4 со штатными состояниями ошибок
-    status: pending
+    content: "UI: сейчас FastAPI-панель (web/); Streamlit Э1–Э4 по макету СРО2 — ещё нет"
+    status: in_progress
   - id: phase-5-ops
-    content: APScheduler, README, smoke-тесты, end-to-end приёмка гипотезы
-    status: pending
+    content: "APScheduler ещё нет; README + pytest smoke + e2e SBER + Docker — есть"
+    status: in_progress
 isProject: false
 ---
 
 # План MVP: инвестиционная аналитическая AI-платформа (СРО2)
 
-Документ уже фиксирует границы прототипа. **MVP = то, что входит в СРО2 (таблица 6)**: сбор данных → БД → тональность → LSTM → дашборд Э1–Э4. **Не делаем в MVP**: риск/портфель (ФТ-4), walk-forward и торговая стратегия (полный ФТ-5), полные дисклеймеры НФТ-5.
+> **Статус (2026-10-29):** фазы 0–3 закрыты. Работает Docker (`invest-ai` + Postgres + Adminer),
+> CSV-пайплайн, sync в БД, FastAPI UI. Остаётся: прямая запись в Postgres, Streamlit Э1–Э4
+> (или расширение текущего UI), APScheduler, полный прогон по всем тикерам.
+> Актуальный запуск — в корневом `README.md`.
 
-Репозиторий сейчас пустой (только docx) — старт с нуля.
+Документ фиксирует границы прототипа. **MVP = то, что входит в СРО2 (таблица 6)**: сбор данных → БД → тональность → LSTM → дашборд Э1–Э4. **Не делаем в MVP**: риск/портфель (ФТ-4), walk-forward и торговая стратегия (полный ФТ-5), полные дисклеймеры НФТ-5.
 
 ## Цель MVP
 
@@ -113,19 +116,22 @@ flowchart LR
 - Метрики: MAE, RMSE, directional accuracy, RMSE_rel vs naive
 - CLI: train_lstm, predict
 
-### Фаза 4. Streamlit UI Э1–Э4 (4–6 дней)
+### Фаза 4. UI Э1–Э4 (4–6 дней)
 Опора на макет Figma из документа и сценарии С1–С6.
-- Э1: карточки, таблица тикеров, последние новости
-- Э2: свечи Plotly + прогноз, карточки, топ новостей
-- Э3: фильтры, распределение/динамика тональности, карточки со ссылками
-- Э4: MAE/RMSE/DA/RMSE_rel, факт vs прогноз, sentiment_metrics.json
+- **Сейчас:** локальная FastAPI-панель (`web/`) — пайплайн, график теста, метрики, прогноз, новости, статус Postgres.
+- **По плану СРО2 (ещё нет):** Streamlit multipage Э1–Э4:
+  - Э1: карточки, таблица тикеров, последние новости
+  - Э2: свечи Plotly + прогноз, карточки, топ новостей
+  - Э3: фильтры, распределение/динамика тональности, карточки со ссылками
+  - Э4: MAE/RMSE/DA/RMSE_rel, факт vs прогноз, sentiment_metrics.json
 - Состояния: loading / empty / stale / DB error / model not trained
-- UI только читает PostgreSQL; st.cache_data
+- UI только читает PostgreSQL (сейчас UI в основном читает CSV + ping БД)
 
 ### Фаза 5. Планировщик и склейка (2–3 дня)
-- APScheduler (МСК): свечи 19:30 → новости каждые 30 мин → sentiment → прогноз 20:00
-- README, smoke-тесты (OHLC, дедуп, split без look-ahead)
-- Короткая строка-дисклеймер в сайдбаре
+- APScheduler (МСК): свечи 19:30 → новости каждые 30 мин → sentiment → прогноз 20:00 — **ещё нет**
+- README, smoke-тесты (OHLC, дедуп, split без look-ahead) — **есть**
+- Короткая строка-дисклеймер в сайдбаре — **ещё нет**
+- Прямая запись ETL/AI в Postgres (вместо CSV→sync) — **ещё нет**
 
 ## Вне MVP (после)
 

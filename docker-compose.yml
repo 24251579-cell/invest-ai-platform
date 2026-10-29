@@ -1,0 +1,57 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: invest
+      POSTGRES_USER: invest
+      POSTGRES_PASSWORD: invest
+      TZ: Europe/Moscow
+      PGTZ: Europe/Moscow
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U invest -d invest"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  adminer:
+    image: adminer:4
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  invest-ai:
+    build: .
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql+psycopg://invest:invest@db:5432/invest
+      HF_HOME: /cache/hf
+      HF_HUB_DISABLE_XET: "1"
+      TORCH_NUM_THREADS: "4"
+      SYNC_DB_ON_START: "1"
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+      - ./reports:/app/reports
+      - ./config:/app/config:ro
+      - hf_cache:/cache/hf
+      - /home/vkotov/hf_models:/home/vkotov/hf_models:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  hf_cache:

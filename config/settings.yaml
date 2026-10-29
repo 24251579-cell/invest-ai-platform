@@ -20,7 +20,7 @@ sentiment:
     ru: blanchefort/rubert-base-cased-sentiment
     en: ProsusAI/finbert
   # Local copies from scripts/download_models.ps1 (<dir>/<repo-name>); used if present
-  local_models_dir: C:\hf_models
+  local_models_dir: /home/vkotov/hf_models
   max_length: 128
   batch_size: 16
   lang_threshold: 0.5

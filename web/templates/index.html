@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>invest-ai</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="/static/app.css" />
+</head>
+<body>
+  <div class="bg"></div>
+  <header class="top">
+    <div>
+      <p class="brand">invest-ai</p>
+      <h1>Локальная панель MVP</h1>
+      <p class="sub">Свечи MOEX → новости → тональность → LSTM → прогноз t+1</p>
+    </div>
+    <div class="controls">
+      <label>Тикер
+        <select id="ticker">
+          {% for t in tickers %}
+          <option value="{{ t }}" {% if t == 'SBER' %}selected{% endif %}>{{ t }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <button id="btn-pipeline" class="primary">Полный пайплайн</button>
+    </div>
+  </header>
+
+  <section class="steps" aria-label="Шаги пайплайна">
+    <button data-step="candles">1. Свечи</button>
+    <button data-step="news">2. Новости</button>
+    <button data-step="sentiment">3. Sentiment</button>
+    <button data-step="train">4. Train LSTM</button>
+    <button data-step="predict">5. Predict</button>
+    <button data-step="sync_db">6. Sync → Postgres</button>
+  </section>
+
+  <section class="status-bar" id="status-bar">
+    <span id="job-state">готово</span>
+    <span id="artifacts"></span>
+  </section>
+
+  <main class="grid">
+    <section class="panel span-2">
+      <div class="panel-head">
+        <h2>Цена и прогноз на тесте</h2>
+        <div class="seg" id="feat-toggle">
+          <button data-f="3" class="active">F=3</button>
+          <button data-f="4">F=4</button>
+        </div>
+      </div>
+      <canvas id="chart-price" height="120"></canvas>
+    </section>
+
+    <section class="panel">
+      <h2>Метрики</h2>
+      <div id="metrics" class="metrics">загрузка…</div>
+    </section>
+
+    <section class="panel">
+      <h2>Прогноз t+1</h2>
+      <div id="forecasts" class="forecasts">нет данных</div>
+    </section>
+
+    <section class="panel span-2">
+      <h2>Лог задачи</h2>
+      <pre id="log" class="log">Нажмите шаг или «Полный пайплайн».</pre>
+    </section>
+
+    <section class="panel span-2">
+      <h2>Последние новости</h2>
+      <div id="news" class="news">нет данных</div>
+    </section>
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
