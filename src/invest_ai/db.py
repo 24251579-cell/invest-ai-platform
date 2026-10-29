@@ -10,6 +10,7 @@ from typing import Iterator
 import pandas as pd
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Engine
+from sqlalchemy.pool import NullPool
 
 from invest_ai import config
 
@@ -52,9 +53,11 @@ def connect(url: str | None = None) -> Iterator:
         yield conn
 
 
-def ping(url: str | None = None) -> dict:
+def ping(url: str | None = None, timeout: int = 3) -> dict:
+    # Without connect_timeout an unreachable host blocks for minutes (OS TCP timeout).
+    eng = create_engine(url or database_url(), poolclass=NullPool, connect_args={"connect_timeout": timeout})
     try:
-        with connect(url) as conn:
+        with eng.begin() as conn:
             version = conn.execute(text("SELECT version()")).scalar()
             counts = {
                 table: int(conn.execute(text(f"SELECT COUNT(*) FROM {table}")).scalar())

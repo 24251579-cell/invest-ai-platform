@@ -15,7 +15,7 @@ todos:
     content: LSTM F=3/F=4 + naive baseline, Model Registry, запись forecasts
     status: completed
   - id: phase-4-ui
-    content: "UI: сейчас FastAPI-панель (web/); Streamlit Э1–Э4 по макету СРО2 — ещё нет"
+    content: "UI: FastAPI Э1–Э4 по макету Figma (web/) — есть; чтение данных из PostgreSQL вместо CSV — ещё нет"
     status: in_progress
   - id: phase-5-ops
     content: "APScheduler ещё нет; README + pytest smoke + e2e SBER + Docker — есть"
@@ -26,8 +26,8 @@ isProject: false
 # План MVP: инвестиционная аналитическая AI-платформа (СРО2)
 
 > **Статус (2026-10-29):** фазы 0–3 закрыты. Работает Docker (`invest-ai` + Postgres + Adminer),
-> CSV-пайплайн, sync в БД, FastAPI UI. Остаётся: прямая запись в Postgres, Streamlit Э1–Э4
-> (или расширение текущего UI), APScheduler, полный прогон по всем тикерам.
+> CSV-пайплайн, sync в БД, FastAPI UI с экранами Э1–Э4 по макету Figma. Остаётся: прямая запись
+> в Postgres (и чтение UI из БД), APScheduler, полный прогон по всем тикерам.
 > Актуальный запуск — в корневом `README.md`.
 
 Документ фиксирует границы прототипа. **MVP = то, что входит в СРО2 (таблица 6)**: сбор данных → БД → тональность → LSTM → дашборд Э1–Э4. **Не делаем в MVP**: риск/портфель (ФТ-4), walk-forward и торговая стратегия (полный ФТ-5), полные дисклеймеры НФТ-5.
@@ -118,13 +118,13 @@ flowchart LR
 
 ### Фаза 4. UI Э1–Э4 (4–6 дней)
 Опора на макет Figma из документа и сценарии С1–С6.
-- **Сейчас:** локальная FastAPI-панель (`web/`) — пайплайн, график теста, метрики, прогноз, новости, статус Postgres.
-- **По плану СРО2 (ещё нет):** Streamlit multipage Э1–Э4:
+- **Сейчас:** FastAPI UI (`web/`) по макету Figma — экраны Э1–Э4 + раздел «Пайплайн» (запуск шагов, лог, статус Postgres).
+- **Исходно планировалось** как Streamlit multipage Э1–Э4:
   - Э1: карточки, таблица тикеров, последние новости
   - Э2: свечи Plotly + прогноз, карточки, топ новостей
   - Э3: фильтры, распределение/динамика тональности, карточки со ссылками
   - Э4: MAE/RMSE/DA/RMSE_rel, факт vs прогноз, sentiment_metrics.json
-- Состояния: loading / empty / stale / DB error / model not trained
+- Состояния: loading / empty / stale / DB error / model not trained — **есть**
 - UI только читает PostgreSQL (сейчас UI в основном читает CSV + ping БД)
 
 ### Фаза 5. Планировщик и склейка (2–3 дня)

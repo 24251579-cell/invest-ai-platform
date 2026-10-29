@@ -3,80 +3,42 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>invest-ai</title>
+  <title>InvestLab · invest-ai</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@600&display=swap" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
-  <link rel="stylesheet" href="/static/app.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/app.css?v={{ version }}" />
 </head>
 <body>
-  <div class="bg"></div>
-  <header class="top">
-    <div>
-      <p class="brand">invest-ai</p>
-      <h1>Локальная панель MVP</h1>
-      <p class="sub">Свечи MOEX → новости → тональность → LSTM → прогноз t+1</p>
-    </div>
-    <div class="controls">
-      <label>Тикер
-        <select id="ticker">
-          {% for t in tickers %}
-          <option value="{{ t }}" {% if t == 'SBER' %}selected{% endif %}>{{ t }}</option>
-          {% endfor %}
-        </select>
-      </label>
-      <button id="btn-pipeline" class="primary">Полный пайплайн</button>
-    </div>
-  </header>
-
-  <section class="steps" aria-label="Шаги пайплайна">
-    <button data-step="candles">1. Свечи</button>
-    <button data-step="news">2. Новости</button>
-    <button data-step="sentiment">3. Sentiment</button>
-    <button data-step="train">4. Train LSTM</button>
-    <button data-step="predict">5. Predict</button>
-    <button data-step="sync_db" title="Ручной полный sync; после шагов 1–3 и 5 уже идёт auto-sync">6. Sync → Postgres</button>
-  </section>
-
-  <section class="status-bar" id="status-bar">
-    <span id="job-state">готово</span>
-    <span id="artifacts"></span>
-  </section>
-
-  <main class="grid">
-    <section class="panel span-2">
-      <div class="panel-head">
-        <h2>Цена и прогноз на тесте</h2>
-        <div class="seg" id="feat-toggle">
-          <button data-f="3" class="active">F=3</button>
-          <button data-f="4">F=4</button>
-        </div>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand"><span class="brand-mark">AI</span><div>Invest<span>Lab</span><small>аналитическая платформа</small></div></div>
+      <nav id="nav">
+        <button data-page="dashboard"><span>▦</span>Дашборд</button>
+        <button data-page="ticker"><span>⌁</span>Тикер</button>
+        <button data-page="news"><span>≡</span>Новости</button>
+        <button data-page="quality"><span>⌗</span>Качество модели</button>
+        <button data-page="pipeline"><span>▶</span>Пайплайн<i class="job-dot" id="job-dot" hidden></i></button>
+      </nav>
+      <div class="controls">
+        <h3>Параметры экрана</h3>
+        <div id="controls"></div>
       </div>
-      <canvas id="chart-price" height="120"></canvas>
-    </section>
+      <div class="sidebar-note"><b>Учебный MVP</b><br />Котировки MOEX ISS, новости RSS и архив Интерфакса, тональность RuBERT / FinBERT, прогноз LSTM.</div>
+    </aside>
 
-    <section class="panel">
-      <h2>Метрики</h2>
-      <div id="metrics" class="metrics">загрузка…</div>
-    </section>
+    <main>
+      <header>
+        <div><span class="eyebrow">ИНВЕСТИЦИОННАЯ АНАЛИТИКА</span><h1 id="title">Дашборд</h1></div>
+        <div class="update"><span id="updated">Данные обновлены: <b>—</b></span><em id="source">проверка БД…</em></div>
+      </header>
+      <div id="banners"></div>
+      <div class="content" id="content"></div>
+      <footer>Инструмент поддержки принятия решений. Не является индивидуальной инвестиционной рекомендацией.</footer>
+    </main>
+  </div>
 
-    <section class="panel">
-      <h2>Прогноз t+1</h2>
-      <div id="forecasts" class="forecasts">нет данных</div>
-    </section>
-
-    <section class="panel span-2">
-      <h2>Лог задачи</h2>
-      <pre id="log" class="log">Нажмите шаг или «Полный пайплайн».</pre>
-    </section>
-
-    <section class="panel span-2">
-      <h2>Последние новости</h2>
-      <div id="news" class="news">нет данных</div>
-    </section>
-  </main>
-
-  <script src="/static/app.js"></script>
+  <script>window.INVEST_AI = {{ {"tickers": tickers} | tojson }};</script>
+  <script src="/static/app.js?v={{ version }}"></script>
 </body>
 </html>
