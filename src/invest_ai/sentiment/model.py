@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import os
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -36,7 +37,8 @@ class SentimentModel:
         self.max_length = max_length or cfg["max_length"]
         self.batch_size = batch_size or cfg["batch_size"]
         torch.set_num_threads(config.torch_threads())
-        local = Path(cfg["local_models_dir"]) / checkpoint.split("/")[-1]
+        models_dir = os.environ.get("LOCAL_MODELS_DIR") or cfg["local_models_dir"]
+        local = Path(models_dir) / checkpoint.split("/")[-1]
         source = str(local) if (local / "model.safetensors").exists() else checkpoint
         log.info("Loading %s from %s", checkpoint, source)
         self.tokenizer = AutoTokenizer.from_pretrained(source)

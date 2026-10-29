@@ -85,6 +85,41 @@ def test_split_has_no_lookahead():
     assert ds.y[te].max() > 1.0
 
 
+def test_sentiment_series_falls_back_to_market():
+    from invest_ai.forecast.train import select_sentiment
+    daily = pd.DataFrame({"ticker": ["SBER", MARKET, MARKET],
+                          "trade_date": ["2026-10-26", "2026-10-26", "2026-10-27"],
+                          "sentiment": [0.5, -0.4, 0.2], "n_news": [1, 3, 2]})
+    mixed = select_sentiment(daily, "SBER", "ticker_or_market")
+    assert list(mixed["sentiment"]) == [0.5, 0.2]
+    assert list(select_sentiment(daily, "SBER", "ticker")["sentiment"]) == [0.5]
+    assert list(select_sentiment(daily, "SBER", "market")["sentiment"]) == [-0.4, 0.2]
+
+
+def test_archive_day_parsing_ignores_sidebar():
+    from invest_ai.etl.news_archive import fetch_day
+
+    html = """<div class="an">
+      <div data-id="2"><span>20:34</span><a href="/business/2"><h3>Сбербанк повысил ставки</h3></a></div>
+      <div data-id="1"><span>06:05</span><a href="/business/1"><h3>Рубль укрепился</h3></a></div>
+    </div><div class="side"><h3>Forbes назвал самых высокооплачиваемых актрис</h3></div>"""
+
+    class Resp:
+        text = html
+        def raise_for_status(self):
+            pass
+
+    class Session:
+        def get(self, *args, **kwargs):
+            return Resp()
+
+    items = fetch_day(date(2026, 6, 10), Session())
+    assert [i["title"] for i in items] == ["Сбербанк повысил ставки", "Рубль укрепился"]
+    assert items[0]["url"] == "https://www.interfax.ru/business/2"
+    assert items[0]["published_at"] == "2026-06-10T20:34:00+03:00"
+    assert [i["ticker"] for i in items] == ["SBER", None]
+
+
 def test_metrics_naive_baseline_rmse_rel_is_one():
     actual = np.array([101.0, 99.0, 102.0])
     prev = np.array([100.0, 101.0, 99.0])

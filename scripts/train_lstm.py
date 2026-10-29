@@ -39,6 +39,7 @@ def main() -> None:
             "rmse_f3": m3["rmse"], "rmse_f4": m4["rmse"],
             "da_f3": m3["da"], "da_f4": m4["da"],
             "rmse_rel_f3": m3["rmse_rel"], "rmse_rel_f4": m4["rmse_rel"],
+            "sentiment_series": results[4]["config"]["sentiment_series"],
             "news_days_with_sentiment": results[4]["config"]["news_days_with_sentiment"],
             "test_period": results[4]["config"]["test_period"],
         }

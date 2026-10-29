@@ -23,7 +23,8 @@ MVP инвестиционной аналитической AI-платформ�
 ## Быстрый старт (Docker — рекомендуемый)
 
 Нужны: Docker + Docker Compose, скачанные HF-модели на хосте
-(путь в `config/settings.yaml` → `sentiment.local_models_dir`, по умолчанию `/home/vkotov/hf_models`).
+(путь — `LOCAL_MODELS_DIR` в `.env`, иначе `sentiment.local_models_dir` из `config/settings.yaml`,
+по умолчанию `/home/vkotov/hf_models`).
 
 ```bash
 cp .env.example .env
@@ -60,7 +61,8 @@ cp .env.example .env               # HF_HOME, DATABASE_URL
 ```
 
 Скачать RuBERT + FinBERT (~1.1 ГБ) в `local_models_dir` (см. `scripts/download_models.ps1`
-или `huggingface_hub.snapshot_download`). Для Linux путь задайте в `config/settings.yaml`.
+или `huggingface_hub.snapshot_download`). Свой путь задайте в `.env` (`LOCAL_MODELS_DIR`),
+а не в `config/settings.yaml`, чтобы не перетирать чужой.
 
 Для доступа к Postgres с хоста поднимите хотя бы БД: `docker compose up -d db adminer`.
 
@@ -71,7 +73,8 @@ source .venv/bin/activate
 
 python scripts/load_candles.py --tickers SBER      # data/raw/candles/SBER.csv
 python scripts/load_news.py                        # data/raw/news.csv
-python scripts/score_sentiment.py --limit 50       # sentiment_scores + daily_sentiment
+python scripts/load_news_archive.py                # архив Интерфакса за 3 года -> news.csv, с докачкой
+python scripts/score_sentiment.py                  # sentiment_scores + daily_sentiment
 python scripts/train_lstm.py --ticker SBER         # models/lstm_sber_f{3,4}/
 python scripts/predict.py --ticker SBER            # data/processed/forecasts.csv
 python scripts/sync_db.py                          # ручной полный sync (обычно не нужен)
@@ -125,6 +128,11 @@ tests/           smoke / unit
 - Оценка новости `s = p_pos − p_neg` (2.1); новость относится к торговому дню по отсечке
   19:00 МСК (2.2), после отсечки и в выходные — к следующему торговому дню.
 - Дневной индекс `S = mean(s)` по тикеру (2.3); общерыночные новости — отдельный ряд `MARKET`.
+- RSS отдаёт только свежие новости, поэтому история берётся из дневного архива Интерфакса
+  (`/business/news/ГГГГ/ММ/ДД`, только заголовки и время публикации).
+- Признак S для F=4 задаётся `lstm.sentiment_series`: `ticker` — только новости эмитента,
+  `market` — только `MARKET`, `ticker_or_market` (по умолчанию) — S эмитента, а в дни без
+  его новостей — S рынка.
 - **Дни без новостей: S = 0** (нейтральный фон), число новостей хранится в `n_news`.
 - Наивный прогноз: цена завтра = цена сегодня (2.19). `RMSE_rel < 1` — модель лучше наивного.
 - Разбиение 70/15/15 по времени, MinMaxScaler только по train, seed = 42.

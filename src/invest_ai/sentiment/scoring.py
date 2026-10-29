@@ -36,8 +36,23 @@ def validate_scores(df: pd.DataFrame) -> pd.DataFrame:
     return df[ok]
 
 
-def score_pending(limit: int | None = None) -> pd.DataFrame:
-    """Score news that have no score for their language's checkpoint. Returns new scores."""
+def _append_scores(rows: list[dict]) -> pd.DataFrame:
+    new = validate_scores(pd.DataFrame(rows, columns=SCORE_COLUMNS[1:]))
+    if new.empty:
+        return new
+    scores = read_scores()
+    start_id = int(scores["id"].max()) + 1 if len(scores) else 1
+    new.insert(0, "id", range(start_id, start_id + len(new)))
+    config.SENTIMENT_CSV.parent.mkdir(parents=True, exist_ok=True)
+    pd.concat([scores, new], ignore_index=True).to_csv(config.SENTIMENT_CSV, index=False)
+    return new
+
+
+def score_pending(limit: int | None = None, chunk: int = 1000) -> pd.DataFrame:
+    """Score news that have no score for their language's checkpoint. Returns new scores.
+
+    Scores are saved every `chunk` news, so an interrupted run keeps its progress.
+    """
     cfg = config.settings()["sentiment"]
     news = read_news()
     if news.empty:
@@ -52,7 +67,7 @@ def score_pending(limit: int | None = None) -> pd.DataFrame:
 
     scores = read_scores()
     done = set(zip(scores["news_id"], scores["model_name"]))
-    new_rows: list[dict] = []
+    saved: list[pd.DataFrame] = []
     for lang, checkpoint in cfg["checkpoints"].items():
         pending = news["id"].map(lambda i: (i, checkpoint) not in done)
         todo = news[(news["lang"] == lang) & pending]
@@ -62,23 +77,21 @@ def score_pending(limit: int | None = None) -> pd.DataFrame:
             continue
         log.info("%s: scoring %d news with %s", lang, len(todo), checkpoint)
         model = SentimentModel(checkpoint)
-        results = model.predict(todo["text"].tolist())
-        now = datetime.now(config.tz()).isoformat()
-        new_rows += [{"news_id": nid, "model_name": checkpoint, "label": r.label,
-                      "p_pos": r.p_pos, "p_neg": r.p_neg, "p_neu": r.p_neu,
-                      "score": r.score, "scored_at": now}
-                     for nid, r in zip(todo["id"], results)]
+        for start in range(0, len(todo), chunk):
+            part = todo.iloc[start:start + chunk]
+            results = model.predict(part["text"].tolist())
+            now = datetime.now(config.tz()).isoformat()
+            saved.append(_append_scores([
+                {"news_id": nid, "model_name": checkpoint, "label": r.label,
+                 "p_pos": r.p_pos, "p_neg": r.p_neg, "p_neu": r.p_neu,
+                 "score": r.score, "scored_at": now}
+                for nid, r in zip(part["id"], results)]))
+            log.info("%s: %d / %d scored", lang, start + len(part), len(todo))
         del model
         gc.collect()
 
     skipped = int(news["lang"].isna().sum())
     if skipped:
         log.info("Skipped %d news in unsupported languages", skipped)
-    new = validate_scores(pd.DataFrame(new_rows, columns=SCORE_COLUMNS[1:]))
-    if new.empty:
-        return new
-    start_id = int(scores["id"].max()) + 1 if len(scores) else 1
-    new.insert(0, "id", range(start_id, start_id + len(new)))
-    config.SENTIMENT_CSV.parent.mkdir(parents=True, exist_ok=True)
-    pd.concat([scores, new], ignore_index=True).to_csv(config.SENTIMENT_CSV, index=False)
-    return new
+    saved = [s for s in saved if not s.empty]
+    return pd.concat(saved, ignore_index=True) if saved else pd.DataFrame(columns=SCORE_COLUMNS)

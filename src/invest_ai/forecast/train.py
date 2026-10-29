@@ -19,6 +19,7 @@ from invest_ai.forecast import registry
 from invest_ai.forecast.features import build_frame, feature_columns, make_dataset
 from invest_ai.forecast.metrics import evaluate
 from invest_ai.forecast.model import LSTMRegressor
+from invest_ai.sentiment.aggregate import MARKET
 
 log = logging.getLogger(__name__)
 
@@ -30,11 +31,25 @@ def set_seed(seed: int) -> None:
     torch.use_deterministic_algorithms(True)
 
 
+def select_sentiment(daily: pd.DataFrame, ticker: str, series: str) -> pd.DataFrame:
+    """Daily S of the ticker, of MARKET, or the ticker's S with MARKET on days without its news."""
+    own = daily[daily["ticker"] == ticker]
+    market = daily[daily["ticker"] == MARKET]
+    if series == "ticker":
+        return own
+    if series == "market":
+        return market
+    if series == "ticker_or_market":
+        filler = market[~market["trade_date"].isin(own["trade_date"])]
+        return pd.concat([own, filler]).sort_values("trade_date", ignore_index=True)
+    raise ValueError(f"Unknown sentiment_series: {series}")
+
+
 def load_daily_sentiment(ticker: str) -> pd.DataFrame | None:
     if not config.DAILY_SENTIMENT_CSV.exists():
         return None
     daily = pd.read_csv(config.DAILY_SENTIMENT_CSV)
-    return daily[daily["ticker"] == ticker]
+    return select_sentiment(daily, ticker, config.settings()["lstm"]["sentiment_series"])
 
 
 def _mse(model: nn.Module, X: np.ndarray, y: np.ndarray) -> float:
@@ -99,6 +114,7 @@ def train(ticker: str, use_sentiment: bool) -> dict:
         "features": columns,
         **{k: p[k] for k in ["window", "hidden_size", "num_layers", "dropout", "lr", "batch_size",
                              "max_epochs", "patience", "grad_clip", "seed", "split"]},
+        "sentiment_series": p["sentiment_series"] if use_sentiment else None,
         "sentiment_fill": p["sentiment_fill"] if use_sentiment else None,
         "news_days_with_sentiment": int((frame.get("sentiment", pd.Series(dtype=float)) != 0).sum()),
         "train_period": [str(dates[ds.splits["train"]][0])[:10], str(dates[ds.splits["train"]][-1])[:10]],

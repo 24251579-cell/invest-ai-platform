@@ -19,7 +19,8 @@ sentiment:
   checkpoints:
     ru: blanchefort/rubert-base-cased-sentiment
     en: ProsusAI/finbert
-  # Local copies from scripts/download_models.ps1 (<dir>/<repo-name>); used if present
+  # Local copies from scripts/download_models.ps1 (<dir>/<repo-name>); used if present.
+  # Machine-specific path goes to LOCAL_MODELS_DIR in .env, which overrides this value.
   local_models_dir: /home/vkotov/hf_models
   max_length: 128
   batch_size: 16
@@ -37,5 +38,8 @@ lstm:
   grad_clip: 1.0
   split: [0.70, 0.15, 0.15]
   seed: 42
+  # Daily S for F=4: ticker (issuer news only), market (MARKET series only),
+  # ticker_or_market (issuer S, MARKET S on days without issuer news)
+  sentiment_series: ticker_or_market
   # Days without news: S = 0 (neutral background), news count kept separately
   sentiment_fill: 0.0

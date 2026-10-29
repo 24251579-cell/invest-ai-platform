@@ -1,5 +1,5 @@
 {
-  "model_version": "lstm_sber_f4_202610291545",
+  "model_version": "lstm_sber_f4_202610291308",
   "ticker": "SBER",
   "use_sentiment": true,
   "features": [
@@ -23,20 +23,21 @@
     0.15,
     0.15
   ],
+  "sentiment_series": "ticker_or_market",
   "sentiment_fill": 0.0,
-  "news_days_with_sentiment": 1,
+  "news_days_with_sentiment": 876,
   "train_period": [
     "2023-12-12",
-    "2026-01-24"
+    "2026-01-23"
   ],
   "val_period": [
-    "2026-01-25",
-    "2026-06-10"
+    "2026-01-24",
+    "2026-06-09"
   ],
   "test_period": [
-    "2026-06-11",
-    "2026-10-29"
+    "2026-06-10",
+    "2026-10-28"
   ],
   "torch_version": "2.15.0+cpu",
-  "trained_at": "2026-10-29T18:45:35.061957+03:00"
+  "trained_at": "2026-10-29T13:08:33.073409+03:00"
 }
