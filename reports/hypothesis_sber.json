@@ -1,16 +1,16 @@
 {
   "ticker": "SBER",
-  "improved_by_sentiment": true,
-  "rmse_f3": 6.188400823462343,
-  "rmse_f4": 5.17353539789264,
-  "da_f3": 51.14503816793893,
-  "da_f4": 54.961832061068705,
-  "rmse_rel_f3": 1.4236809732619824,
-  "rmse_rel_f4": 1.1902047266479765,
+  "improved_by_sentiment": false,
+  "rmse_f3": 4.337113315048691,
+  "rmse_f4": 4.539447303141195,
+  "da_f3": 55.223880597014926,
+  "da_f4": 51.49253731343284,
+  "rmse_rel_f3": 1.056475517987381,
+  "rmse_rel_f4": 1.1057619648355148,
   "sentiment_series": "ticker_or_market",
-  "news_days_with_sentiment": 876,
+  "news_days_with_sentiment": 885,
   "test_period": [
-    "2026-06-10",
-    "2026-10-28"
+    "2026-07-02",
+    "2026-11-20"
   ]
 }
