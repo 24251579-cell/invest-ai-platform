@@ -429,7 +429,8 @@ def news_feed(ticker: str = "ALL", period: str = "1m", tones: str = ",".join(TON
     if ticker.upper() != "ALL":
         items = items[items["ticker"] == _check_ticker(ticker)]
     wanted = [t for t in tones.split(",") if t in TONES]
-    items = items[items["label"].isna() | items["label"].isin(wanted)]
+    if len(wanted) < len(TONES):
+        items = items[items["label"].isin(wanted)]
     scored = items.dropna(subset=["score"])
     daily = scored.groupby(scored["published_at"].dt.strftime("%Y-%m-%d"))["score"].mean()
     page = items.iloc[::-1].iloc[offset:offset + limit]

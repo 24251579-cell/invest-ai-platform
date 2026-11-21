@@ -19,7 +19,7 @@
     page: "dashboard",
     ticker: "SBER",
     newsTicker: "ALL",
-    period: "3m",
+    period: "1y",
     features: 4,
     forecast: true,
     tones: { positive: true, neutral: true, negative: true },
